@@ -1,0 +1,42 @@
+name: Bug report
+description: Report a reproducible MicLock problem
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve MicLock. Remove personal device names from logs if needed.
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: macOS 26.x
+    validations:
+      required: true
+  - type: input
+    id: hardware
+    attributes:
+      label: Mac model
+      placeholder: MacBook Air (Apple Silicon)
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Reproduction steps
+      placeholder: Describe what you did and what happened.
+    validations:
+      required: true
+  - type: textarea
+    id: devices
+    attributes:
+      label: Input devices
+      description: Output of mic-list, with personal device names redacted if desired.
+      render: shell
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Output of miclock logs, with sensitive details redacted.
+      render: shell

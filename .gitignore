@@ -1,0 +1,15 @@
+.DS_Store
+.AppleDouble
+.LSOverride
+
+build/
+DerivedData/
+*.app
+*.dmg
+*.dmg.sha256
+*.zip
+*.xcarchive
+
+*.log
+*.tmp
+*~
