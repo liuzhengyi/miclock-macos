@@ -1,33 +1,33 @@
-MicLock 2.1.1（Apple Silicon / macOS Tahoe 26）
-================================================
+MicLock 3.2.0（build 12）
+========================
 
-安装
-----
-1. 双击“安装 MicLock.command”。
-2. 如果 macOS 阻止运行，请按住 Control 点击该文件，选择“打开”，再确认“打开”。
-3. 安装完成后，MicLock 会出现在菜单栏；也可以按 Command-Space 搜索 MicLock。
-4. 如果菜单图标没有出现，请在访达中打开“个人文件夹 → 应用程序”，按住 Control
-   点击 MicLock，选择“打开”并确认一次。这是未公证测试构建的首次运行确认。
+戴上耳机后，语音输入变差？先检查系统是否切到了耳机麦克风。
+MicLock 可以把电脑自带麦克风保持为系统默认输入，耳机仍可用于听声音。
+程序不录音，不改变麦克风硬件或语音识别算法。
 
-使用
-----
-- 固定的麦克风图标是 MicLock 标识。
-- 蓝色 M：MacBook 内建麦克风。
-- 青色 A：AirPods 或其他蓝牙耳机麦克风。
-- 橙色 O：其他输入设备或虚拟麦克风。
-- 红色 !：没有可用输入。
-- 实心麦克风：自动锁定开启；描边麦克风：自动锁定暂停。
-- 麦克风主体会跟随 macOS 菜单栏自动显示为白色或深色；彩色角标保持不变。
+安装官网下载的 DMG
+-------------------
+1. 打开 DMG，把 MicLock.app 拖入 Applications。
+2. 打开 MicLock，配置电脑自带麦克风并开启“自动锁定”。
+3. 在语音输入软件中，把麦克风设为“系统默认”。
 
-卸载
-----
-双击“卸载 MicLock.command”。
+关闭设置窗口后，菜单栏入口仍然保留，可快捷配置、暂停和恢复锁定，
+也可反馈问题、查看版本记录、检查更新和卸载。首次安装默认关闭锁定。
 
-兼容性与安全说明
-----------------
-- 本构建仅支持 Apple Silicon 和 macOS Tahoe 26 或更高版本。
-- 包内已包含 SwitchAudioSource 1.2.2，不需要安装 Homebrew。
-- MicLock 自身使用 MIT License，许可证位于磁盘映像和应用包内。
-- SwitchAudioSource 使用 MIT 许可证，许可证文本位于 MicLock.app 内。
-- 这是未使用 Apple Developer ID 公证的可信测试构建。只应发送给你信任的人。
-  正式公开分发前，需要 Developer ID 签名和 Apple 公证。
+反馈时只需描述问题；自动附带的脱敏诊断可以先查看，也可以取消。
+发送失败会保留本地草稿，由你主动重试。匿名使用统计默认关闭，
+需要你主动开启，并可随时关闭。
+
+源码安装工具
+------------
+本源码目录的 install.command 与 uninstall.command 是高级安装工具，
+不包含在常规 DMG 中。从源码构建前，需要下载并验证官方 Sparkle 框架。
+构建与命令行安装方式见 README.zh-CN.md。
+
+兼容与发行验证
+--------------
+构建目标为 macOS 13+，包含 Apple Silicon 与 Intel 两个架构。
+Intel 电脑、耳机、清洁安装、升级重启和卸载仍需完成真实验收。
+当前使用 ad-hoc 签名，尚未完成 Developer ID 签名与 Apple 公证。
+
+源码：https://github.com/liuzhengyi/miclock-macos/tree/codex/native-3.2.0

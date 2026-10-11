@@ -1,163 +1,146 @@
 # MicLock for macOS
+> Source version: 3.2.0, build 12. Developer ID signing, notarization, and broader device acceptance remain pending.
 
 <p align="center">
   <img src="docs/MicLock-icon.png" width="160" alt="MicLock icon">
 </p>
 
-MicLock keeps the macOS global default input device on your MacBook's built-in
-microphone while allowing AirPods or another headset to remain the output
-device.
+MicLock keeps the macOS global default input on a selected microphone while
+AirPods or another headset can remain the output device.
 
 [简体中文](README.zh-CN.md)
 
-## Why
+## Highlights
 
-AirPods may become the default input whenever they reconnect. That activates
-the Bluetooth hands-free audio path and can reduce playback quality. MicLock
-continuously restores the preferred microphone without changing the output
-device.
-
-## Features
-
-- Native macOS menu-bar app with no Dock icon.
-- Global default-input enforcement for apps that use “System Default”.
-- Built-in microphone, AirPods/Bluetooth, other-device, and unavailable badges.
-- Automatic menu-bar contrast while the device badge remains colored.
-- Command-line controls for status, selection, pause, resume, and logs.
-- Per-user LaunchAgents; no root daemon and no <code>sudo</code>.
-- No network access, analytics, or audio recording.
+- Event-driven native CoreAudio implementation; no polling subprocesses.
+- Stable device UID storage, independent of display name and system language.
+- Separate actions for a one-time switch and a persistent lock target.
+- Real health states for healthy, waiting, conflict, paused, and error.
+- Built-in, Bluetooth, external, virtual, and other device badges.
+- English and Simplified Chinese UI, VoiceOver status, and increased contrast.
+- Native CLI, login-item control, in-app redacted feedback, signed Sparkle updates, version history and safe uninstall.
+- A native Status and Settings window shows the real input, saved target, health, and automatic-lock control.
+- No Homebrew dependency, audio capture, or root daemon. Usage statistics are off by default; users may explicitly enable a small set of anonymous events. Update checks and reports connect only when requested.
 
 ## Compatibility
 
-- macOS Tahoe 26 or later.
-- Apple Silicon.
-- Source installation uses
-  [SwitchAudioSource](https://github.com/deweller/switchaudio-osx) 1.2.2 through
-  Homebrew.
+- Deployment target: macOS 13 or later. Broad OS/device acceptance remains pending.
+- Universal app for Apple Silicon and Intel Macs.
 
-## Install the release
+## Install from the product website
 
-1. Download the latest DMG from
-   [GitHub Releases](https://github.com/liuzhengyi/miclock-macos/releases/latest).
-2. Open the DMG and run <code>安装 MicLock.command</code>.
-3. MicLock appears in the menu bar and can also be launched with Spotlight by
-   searching for <code>MicLock</code>.
+1. Download the DMG from the [product website](https://ecnkfnba0c1r.feishuapp.com/app/app_17ftjhzb3vs#download), checking its displayed version and release status.
+2. Open the DMG and drag `MicLock.app` to `Applications`.
+3. Open `MicLock` from Applications or Spotlight. Follow the initial guide to choose a target microphone and enable Automatic Lock.
 
-The current community build is ad-hoc signed and not Apple-notarized. If
-Gatekeeper blocks first launch, Control-click <code>MicLock.app</code>, choose
-**Open**, and confirm. Review the source before installing.
+The local 3.2.0 build is currently ad-hoc signed. Apple notarization and formal Gatekeeper acceptance remain pending. The website must switch to a formal package only after Developer ID signing, notarization, and installation acceptance succeed; a successful build alone does not establish installation readiness.
+
+The [3.2.0 source branch](https://github.com/liuzhengyi/miclock-macos/tree/codex/native-3.2.0) matches this native version. The main branch may remain on an earlier version while the pull request is reviewed.
 
 ## Install from source
 
+For this native version, first fetch the checksum-pinned official framework with `./scripts/fetch-sparkle.sh`, then build in the complete source directory:
+
 ~~~zsh
-git clone https://github.com/liuzhengyi/miclock-macos.git
-cd miclock-macos
-chmod +x *.sh miclock
 ./install.sh
-./install-menu-app.sh
 ~~~
 
-<code>install.sh</code> installs <code>switchaudio-osx</code> with Homebrew
-when needed, detects the built-in microphone, installs the background
-LaunchAgent, and verifies the selected device.
-
-To choose a device explicitly:
+This advanced installer also places CLI commands in `~/.local/bin`. Users who drag the app to Applications do not need it. No Homebrew package is required by this native source. A target can be selected explicitly after installation with either its exact name or stable UID:
 
 ~~~zsh
-SwitchAudioSource -a -t input
-./install.sh --device "MacBook Air Microphone"
+mic-list
+miclock use "BuiltInMicrophoneDevice"
 ~~~
 
 ## Command line
 
-The installer adds these commands to <code>~/.local/bin</code>:
-
-~~~zsh
-mic-status                         # Service, target, and current input
-mic-list                           # List input devices
-mic-pick                           # Select a target interactively
-mic-set "Device Name"              # Select and enforce a target
-mic-fix                            # Correct the input immediately
-mic-off                            # Pause automatic enforcement
-mic-on                             # Resume automatic enforcement
-mic-quit                           # Stop enforcement; restore macOS behavior
-mic-start                          # Start enforcement again
-miclock logs                       # Show recent logs
+~~~text
+mic-status                       Show current input and health
+mic-list                         List devices, transport, and stable UID
+mic-pick                         Select a persistent lock target
+mic-set "NAME_OR_UID"            Set and switch to a persistent target
+mic-fix                          Restore the configured target once
+mic-off                          Pause automatic locking
+mic-start                        Enable locking and start the app
+mic-quit                         Disable locking and quit the app
+miclock switch "NAME_OR_UID"     Switch once and pause automatic locking
+miclock diagnostics              Print redacted diagnostics
+miclock show-menu                Open the menu bar menu, starting MicLock if needed
+miclock show-status              Open Status and Settings, starting MicLock if needed
 ~~~
 
-If <code>~/.local/bin</code> is not on your shell path:
-
-~~~zsh
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.zshrc
-source ~/.zshrc
-~~~
+Commands are installed in `~/.local/bin`. Add that directory to `PATH` if your
+shell does not already include it.
 
 ## Menu-bar states
 
 | Badge | Meaning |
 | --- | --- |
-| Blue <code>M</code> | MacBook built-in microphone |
-| Teal <code>A</code> | AirPods or another Bluetooth microphone |
-| Orange <code>O</code> | Other or virtual input device |
-| Red <code>!</code> | No input device is available |
+| `M` | Mac built-in input |
+| `B` | Bluetooth input |
+| `E` | External hardware input |
+| `V` | Virtual or aggregate input |
+| `O` | Other transport |
+| `!` | Target unavailable, repeated conflict, or error |
 
-The filled microphone means enforcement is active. The outlined microphone
-means it is paused. Click the icon to switch devices or restore normal macOS
-behavior.
+Selecting **Switch Input Now** pauses automatic locking so the chosen device is
+not immediately reverted. Selecting **Lock Target** changes the persistent UID.
+
+Choose **Status and Settings…** from the menu to inspect the actual input, target, and health, or change the target and Automatic Lock directly. Closing this window leaves MicLock running in the menu bar. Reopening the app shows the status window again.
 
 ## How it works
 
-MicLock installs two per-user LaunchAgents:
+The menu-bar app listens for CoreAudio default-input and device-list property
+changes. It acts only after an event instead of launching a command every two
+seconds. Repeated external routing conflicts trigger a temporary backoff rather
+than an infinite device-selection fight.
 
-- <code>com.user.mic-input-lock</code> checks the current CoreAudio default
-  input every two seconds and restores the configured device when necessary.
-- <code>com.user.mic-input-lock-menu</code> runs the AppKit menu-bar interface.
-
-Configuration and logs live in:
+Configuration and health are atomically stored with user-only permissions in:
 
 ~~~text
-~/.config/mic-input-lock/
-~/Library/LaunchAgents/com.user.mic-input-lock*.plist
-~/Library/Logs/mic-input-lock*.log
+~/Library/Application Support/MicLock/
 ~~~
 
-MicLock changes only the global default input. An app that explicitly selects
-its own microphone can override the system default; choose “System Default” in
-that app.
+MicLock controls only the macOS global default. Apps such as Zoom or Teams can
+override it when configured to use a specific microphone; choose **System
+Default** inside those apps.
 
-## Build a DMG
+## Build and verify
 
 ~~~zsh
-brew install switchaudio-osx
-./build-dmg.sh
+./scripts/fetch-sparkle.sh
+./tests/run.sh
+python3 -m venv .layout-venv
+.layout-venv/bin/pip install ds_store==1.3.2 mac_alias==2.2.3
+MICLOCK_LAYOUT_PYTHON="$PWD/.layout-venv/bin/python" MICLOCK_LAYOUT_MODULES="" ./build-dmg.sh
 ~~~
 
-The DMG embeds the Apple Silicon <code>SwitchAudioSource</code> executable and
-its MIT license so recipients do not need Homebrew. A production release
-should replace ad-hoc signing with Developer ID signing, Hardened Runtime, and
-Apple notarization.
+Builds are universal and warning-clean, with ad-hoc signing by default. The included Sparkle 2.10.0 framework comes from its official release and is verified against a pinned SHA-256 before extraction. The DMG layout dependencies above are build tools and are not included in the app. `SIGNING_IDENTITY` can supply a Developer ID identity; Apple notarization remains a separate release step.
+
+The native regression workflow runs on each push and pull request. It checks isolated device, state, correction, lifecycle, feedback, and analytics models; compiles both architectures; and verifies the app signature. It does not install or uninstall an app, change the real microphone, send feedback, or establish acceptance on physical Intel Macs and headsets. Website and support-service tests are maintained separately from this native repository.
 
 ## Uninstall
 
-From a release DMG, run <code>卸载 MicLock.command</code>. From source:
+For an installation in `/Applications` or your personal `~/Applications`, choose **Uninstall MicLock…** in the menu or settings window. Confirm to stop locking, unregister this app’s own login item, and move the app to the Trash. Saved settings and feedback drafts are retained unless you explicitly select their removal. Only known MicLock files are removed; unknown files are preserved. Developer builds and apps running from a DMG are refused by this uninstall action.
+
+If you installed CLI commands from source, run the following in the matching source directory:
 
 ~~~zsh
-./uninstall-menu-app.sh
-./uninstall.sh --purge-logs
+./uninstall.sh
 ~~~
+
+The uninstaller refuses root execution and symlink traversal, and deletes CLI
+aliases only when their ownership can be verified.
 
 ## Privacy and security
 
-MicLock does not capture microphone audio. It only reads available CoreAudio
-device metadata and changes the system default input. It contains no network
-client, telemetry, updater, or analytics SDK.
+MicLock reads CoreAudio device metadata and changes the default input. It does
+not record audio. Updates and reports connect only when chosen; optional anonymous statistics are off by default and may be disabled at any time. Diagnostics redact device names and UIDs by default. Users can inspect or exclude the diagnostic attachment before submitting a report. See [SECURITY.md](SECURITY.md).
 
-## Contributing
-
-Issues and pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+**Report an Issue…** opens an in-app description field. A redacted system snapshot is attached by default and can be previewed or excluded before sending. Failed reports remain drafts for a user-initiated retry.
 
 ## License
 
 MicLock is released under the [MIT License](LICENSE).
-<code>SwitchAudioSource</code> is a separate MIT-licensed project; its license
-is bundled with release builds.
+
+New installations start with automatic locking off. Enable it after checking the target and selecting System Default in the voice app. The source installer preserves existing lock and login preferences on upgrade. Run `build/MicLock.app/Contents/MacOS/MicLock --guide` to preview the real guide without initializing state or changing the microphone.
