@@ -1,4 +1,4 @@
-MicLock 3.2.0 (build 12)
+MicLock 3.2.1 (build 13)
 ========================
 
 MicLock keeps the macOS default input on the microphone you configure while
@@ -32,4 +32,4 @@ macOS 13+ is the build target. The app includes arm64 and x86_64; real Intel,
 headset, clean-install, upgrade/restart and uninstall acceptance remain separate
 release checks. Current builds use ad-hoc signing and are not Apple-notarized.
 
-Source: https://github.com/liuzhengyi/miclock-macos/tree/codex/native-3.2.0
+Source: https://github.com/liuzhengyi/miclock-macos/tree/v3.2.1

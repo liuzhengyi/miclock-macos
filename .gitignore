@@ -21,3 +21,5 @@ __pycache__/
 /tests/v320-signature-verification.json
 __pycache__/
 *.pyc
+/runtime/
+/tests/live-tools/

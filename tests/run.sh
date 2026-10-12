@@ -74,6 +74,18 @@ MICLOCK_SUPPORT_DIR="$build_dir/state" "$build_dir/test-state"
 MICLOCK_SUPPORT_DIR="$build_dir/coordinator-state" "$build_dir/test-enforcement"
 
 /usr/bin/xcrun clang -fobjc-arc -fblocks -Wall -Wextra -Wpedantic -Werror \
+  -mmacosx-version-min=13.0 -framework AppKit -framework Foundation \
+  -framework CoreText -framework CoreAudio -framework AudioToolbox -framework ServiceManagement \
+  -F "$SPARKLE_DIR" -framework Sparkle -Wl,-rpath,"$SPARKLE_DIR" \
+  -I "$SOURCE_DIR/menu-app" \
+  "$SOURCE_DIR/tests/test-status-item.m" "$SOURCE_DIR/menu-app/MLAudio.m" \
+  "$SOURCE_DIR/menu-app/MLState.m" "$SOURCE_DIR/menu-app/MLCorrectionPolicy.m" \
+  "$SOURCE_DIR/menu-app/MLGuide.m" "$SOURCE_DIR/menu-app/MLStatusWindow.m" \
+  "$SOURCE_DIR/menu-app/MLUpdate.m" "$SOURCE_DIR/menu-app/MLLifecycle.m" \
+  "$SOURCE_DIR/menu-app/MLFeedback.m" "$SOURCE_DIR/menu-app/MLAnalytics.m" -o "$build_dir/test-status-item"
+MICLOCK_SUPPORT_DIR="$build_dir/status-item-state" "$build_dir/test-status-item"
+
+/usr/bin/xcrun clang -fobjc-arc -fblocks -Wall -Wextra -Wpedantic -Werror \
   -mmacosx-version-min=13.0 -framework AppKit -framework Foundation -framework ServiceManagement \
   -F "$SPARKLE_DIR" -framework Sparkle -Wl,-rpath,"$SPARKLE_DIR" \
   -I "$SOURCE_DIR/menu-app" "$SOURCE_DIR/tests/test-lifecycle.m" \

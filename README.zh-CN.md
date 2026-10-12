@@ -1,5 +1,5 @@
 # MicLock：macOS 全局麦克风锁定
-> 源码版本：3.2.0，build 12。Developer ID 签名、Apple 公证和更广泛的真实设备验收仍需完成。
+> 当前开发版本：3.2.1，build 13。发布包以网站版本及本轮交付记录为准；Developer ID、Apple 公证和真实升级/卸载验收仍需完成。
 
 <p align="center">
   <img src="docs/MicLock-icon.png" width="160" alt="MicLock 图标">
@@ -44,6 +44,7 @@
 - 展示正常、等待设备、持续冲突、暂停和错误等真实健康状态。
 - 支持内建、蓝牙、外接、虚拟和其他设备角标。
 - 中英文界面、VoiceOver 状态及增强对比度。
+- 启动时修复无效的菜单栏位置记录，激活应用时复用同一个入口；按钮重建后恢复图像。
 - 不依赖 Homebrew，不录音。默认不发送使用统计；用户可主动开启固定的匿名事件统计，随时关闭。日常配置麦克风不需要 sudo。
 
 ## 兼容性
@@ -57,13 +58,13 @@
 2. 打开 DMG，把 `MicLock.app` 拖到 `Applications`。
 3. 从“应用程序”或 Spotlight 打开 `MicLock`，按首次引导确认目标麦克风并开启自动锁定。
 
-本地 3.2.0 当前仍是 ad-hoc 签名，未完成 Apple 公证和 Gatekeeper 正式发行验收。完成 Developer ID 签名、公证及安装验收后，才会将官网切换到正式包。打包成功不表示普通用户已经可以无障碍安装。
+本地 3.2.1 当前仍是 ad-hoc 签名，未完成 Apple 公证和 Gatekeeper 正式发行验收。完成 Developer ID 签名、公证及安装验收后，才会将官网切换到正式包。打包成功不表示普通用户已经可以无障碍安装。
 
-GitHub 的 [3.2.0 源码分支](https://github.com/liuzhengyi/miclock-macos/tree/codex/native-3.2.0) 对应当前原生版本。PR 审阅期间，主分支可能仍是较早版本。
+GitHub 的 [3.2.1 源码标签](https://github.com/liuzhengyi/miclock-macos/tree/v3.2.1) 对应当前原生版本。PR 审阅期间，主分支可能仍是较早版本。
 
 ## 从源码安装
 
-需要当前原生版本时，在这份完整 3.2.0 源码目录运行：
+需要当前原生版本时，在这份完整 3.2.1 源码目录运行：
 
 ~~~zsh
 ./scripts/fetch-sparkle.sh
@@ -118,9 +119,9 @@ python3 -m venv .layout-venv
 MICLOCK_LAYOUT_PYTHON="$PWD/.layout-venv/bin/python" MICLOCK_LAYOUT_MODULES="" ./build-dmg.sh
 ~~~
 
-构建结果是通过严格警告检查的通用二进制，默认使用 ad-hoc 签名。内含官方 Sparkle 2.10.0 更新框架，下载后先验证固定 SHA-256 再解包。上面的 DMG 布局依赖仅用于构建，不放入应用。可通过 `SIGNING_IDENTITY` 接入 Developer ID；Apple 公证仍是独立发行步骤。
+需要打包已经通过真机验收的应用时，将 `MICLOCK_PREBUILT_APP` 指向对应 `MicLock.app`，并用 `MICLOCK_PREBUILT_BINARY_SHA256` 指定已验收的二进制校验值。打包器核验完整 Info.plist 和深度代码签名，原样拷贝应用，不重新编译或签名。
 
-每次推送与提交 PR 都会触发原生回归测试，验证隔离的设备、配置、纠正策略、卸载边界、反馈和统计模型，并编译两个架构、校验应用签名。测试不安装或卸载真实应用，不改变实际麦克风、不发送反馈；通过测试不等于完成 Intel 电脑、耳机、升级与安装的真实验收。网页和反馈服务的测试在对应项目中单独维护。
+构建结果是通过严格警告检查的通用二进制，默认使用 ad-hoc 签名。内含官方 Sparkle 2.10.0 更新框架，下载后先验证固定 SHA-256 再解包。上面的 DMG 布局依赖仅用于构建，不放入应用。可通过 `SIGNING_IDENTITY` 接入 Developer ID；Apple 公证仍是独立发行步骤。
 
 ## 卸载
 
@@ -142,4 +143,4 @@ MicLock 不录音。检查更新和提交应用内反馈仅在用户主动操作
 
 MicLock 使用 [MIT License](LICENSE)。
 
-首次安装默认关闭自动锁定。确认目标设备后，在菜单中开启，并将语音软件的麦克风设为“系统默认”。源码安装脚本升级时保留原有锁定及登录启动选择。`build/MicLock.app/Contents/MacOS/MicLock --guide` 可预览真实使用引导，不初始化状态、不启动锁定、不改变输入设备。
+本地预览：首次安装默认关闭自动锁定。确认目标设备后，在菜单中开启，并将语音软件的麦克风选为“系统默认”。源码安装脚本升级时保留原有锁定及登录启动选择。`build/MicLock.app/Contents/MacOS/MicLock --guide` 仅展示实际使用入门窗口，不初始化状态、不启动锁定、不改变输入设备。macOS 13+ 是构建目标；跨系统与真实设备验收仍待完成。

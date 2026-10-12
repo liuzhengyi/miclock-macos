@@ -1,4 +1,4 @@
-MicLock 3.2.0（build 12）
+MicLock 3.2.1（build 13）
 ========================
 
 戴上耳机后，语音输入变差？先检查系统是否切到了耳机麦克风。
@@ -30,4 +30,4 @@ MicLock 可以把电脑自带麦克风保持为系统默认输入，耳机仍可
 Intel 电脑、耳机、清洁安装、升级重启和卸载仍需完成真实验收。
 当前使用 ad-hoc 签名，尚未完成 Developer ID 签名与 Apple 公证。
 
-源码：https://github.com/liuzhengyi/miclock-macos/tree/codex/native-3.2.0
+源码：https://github.com/liuzhengyi/miclock-macos/tree/v3.2.1

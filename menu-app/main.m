@@ -12,6 +12,7 @@
 #import "MLLifecycle.h"
 #import "MLFeedback.h"
 #import "MLAnalytics.h"
+#import "MLStatusPlacement.h"
 
 static NSString * const MLBundleIdentifier = @"io.github.liuzhengyi.miclock";
 static NSString * const MLShowMenuNotification = @"io.github.liuzhengyi.miclock.show-menu";
@@ -229,10 +230,29 @@ static NSColor *MLBadgeColor(MLAudioDeviceKind kind) {
 }
 
 - (void)createStatusItem {
+    // Activation can arrive before applicationDidFinishLaunching. Keep that
+    // original button rather than replacing it with an unpainted status item.
+    if (self.statusItem != nil) {
+        self.statusItem.visible = YES;
+        [self updateStatusIcon];
+        [self rebuildMenu];
+        return;
+    }
+    self.lastIconSignature = nil;
     self.statusMenu = [[NSMenu alloc] initWithTitle:@"MicLock"];
     self.statusMenu.delegate = self;
     self.statusMenu.autoenablesItems = NO;
-    self.statusItem = [NSStatusBar.systemStatusBar statusItemWithLength:NSSquareStatusItemLength];
+    NSScreen *screen = NSScreen.mainScreen;
+    if (screen == nil) screen = NSScreen.screens.firstObject;
+    CGFloat rightAreaWidth = screen != nil && screen.safeAreaInsets.top > 0
+        ? NSWidth(screen.auxiliaryTopRightArea) : 0;
+    CGFloat availableWidth = rightAreaWidth > 0 ? rightAreaWidth
+        : (screen != nil ? NSWidth(screen.frame) : 0);
+    MLStatusPlacementPrepareDefaults(NSUserDefaults.standardUserDefaults,
+                                    MLBundleIdentifier, availableWidth);
+    // Give the item its stable identity before asking Control Center to host
+    // visible content (particularly important for the macOS 26 scene host).
+    self.statusItem = [NSStatusBar.systemStatusBar statusItemWithLength:0];
     self.statusItem.autosaveName = MLBundleIdentifier;
     self.statusItem.menu = self.statusMenu;
     self.statusItem.behavior = 0; // Do not offer drag-to-remove while MicLock runs.
@@ -250,6 +270,7 @@ static NSColor *MLBadgeColor(MLAudioDeviceKind kind) {
         [self.badgeView.bottomAnchor constraintEqualToAnchor:self.statusItem.button.bottomAnchor constant:1.0],
     ]];
     [self updateStatusIcon];
+    self.statusItem.length = NSSquareStatusItemLength;
     [self rebuildMenu];
 }
 
@@ -590,7 +611,8 @@ static NSColor *MLBadgeColor(MLAudioDeviceKind kind) {
         currentName, targetName, MLHealthDisplayName(healthStatus)];
     NSString *signature = [NSString stringWithFormat:@"%@|%@|%@",
         current.uid != nil ? current.uid : @"", healthStatus, @(enabled)];
-    if (![signature isEqualToString:self.lastIconSignature]) {
+    if (self.statusItem.button.image == nil ||
+        ![signature isEqualToString:self.lastIconSignature]) {
         self.statusItem.button.image = [self statusTemplateImageLocked:healthy accessibilityLabel:description];
         self.lastIconSignature = signature;
     }

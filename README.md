@@ -1,5 +1,5 @@
 # MicLock for macOS
-> Source version: 3.2.0, build 12. Developer ID signing, notarization, and broader device acceptance remain pending.
+> Current development version: 3.2.1, build 13. Developer ID/notarization and real upgrade/uninstall acceptance remain pending; website delivery records identify the actual published package.
 
 <p align="center">
   <img src="docs/MicLock-icon.png" width="160" alt="MicLock icon">
@@ -20,6 +20,7 @@ AirPods or another headset can remain the output device.
 - English and Simplified Chinese UI, VoiceOver status, and increased contrast.
 - Native CLI, login-item control, in-app redacted feedback, signed Sparkle updates, version history and safe uninstall.
 - A native Status and Settings window shows the real input, saved target, health, and automatic-lock control.
+- Repairs invalid saved menu-bar placement at startup and reuses one status item across activation; restores its image if the button is recreated.
 - No Homebrew dependency, audio capture, or root daemon. Usage statistics are off by default; users may explicitly enable a small set of anonymous events. Update checks and reports connect only when requested.
 
 ## Compatibility
@@ -33,9 +34,9 @@ AirPods or another headset can remain the output device.
 2. Open the DMG and drag `MicLock.app` to `Applications`.
 3. Open `MicLock` from Applications or Spotlight. Follow the initial guide to choose a target microphone and enable Automatic Lock.
 
-The local 3.2.0 build is currently ad-hoc signed. Apple notarization and formal Gatekeeper acceptance remain pending. The website must switch to a formal package only after Developer ID signing, notarization, and installation acceptance succeed; a successful build alone does not establish installation readiness.
+The local 3.2.1 build is currently ad-hoc signed. Apple notarization and formal Gatekeeper acceptance remain pending. The website must switch to a formal package only after Developer ID signing, notarization, and installation acceptance succeed; a successful build alone does not establish installation readiness.
 
-The [3.2.0 source branch](https://github.com/liuzhengyi/miclock-macos/tree/codex/native-3.2.0) matches this native version. The main branch may remain on an earlier version while the pull request is reviewed.
+The [3.2.1 source tag](https://github.com/liuzhengyi/miclock-macos/tree/v3.2.1) matches this native version. The main branch may remain on an earlier version while the pull request is reviewed.
 
 ## Install from source
 
@@ -115,9 +116,9 @@ python3 -m venv .layout-venv
 MICLOCK_LAYOUT_PYTHON="$PWD/.layout-venv/bin/python" MICLOCK_LAYOUT_MODULES="" ./build-dmg.sh
 ~~~
 
-Builds are universal and warning-clean, with ad-hoc signing by default. The included Sparkle 2.10.0 framework comes from its official release and is verified against a pinned SHA-256 before extraction. The DMG layout dependencies above are build tools and are not included in the app. `SIGNING_IDENTITY` can supply a Developer ID identity; Apple notarization remains a separate release step.
+To package an app already accepted on a real device without rebuilding it, set `MICLOCK_PREBUILT_APP` to its `MicLock.app` directory. Set `MICLOCK_PREBUILT_BINARY_SHA256` to the accepted executable checksum to require an exact match. The packager verifies the complete Info.plist and deep code signature, then copies the app without re-signing it.
 
-The native regression workflow runs on each push and pull request. It checks isolated device, state, correction, lifecycle, feedback, and analytics models; compiles both architectures; and verifies the app signature. It does not install or uninstall an app, change the real microphone, send feedback, or establish acceptance on physical Intel Macs and headsets. Website and support-service tests are maintained separately from this native repository.
+Builds are universal and warning-clean, with ad-hoc signing by default. The included Sparkle 2.10.0 framework comes from its official release and is verified against a pinned SHA-256 before extraction. The DMG layout dependencies above are build tools and are not included in the app. `SIGNING_IDENTITY` can supply a Developer ID identity; Apple notarization remains a separate release step.
 
 ## Uninstall
 
@@ -143,4 +144,10 @@ not record audio. Updates and reports connect only when chosen; optional anonymo
 
 MicLock is released under the [MIT License](LICENSE).
 
-New installations start with automatic locking off. Enable it after checking the target and selecting System Default in the voice app. The source installer preserves existing lock and login preferences on upgrade. Run `build/MicLock.app/Contents/MacOS/MicLock --guide` to preview the real guide without initializing state or changing the microphone.
+## Quick start
+
+Keep your microphone when you connect headphones. Choose your built-in microphone under Lock Target, enable Automatic Lock, and select System Default in your voice app. The first launch includes a guide; reopen it anytime from the menu.
+
+Badges: M built-in, B Bluetooth, E external, V virtual, O other, ! attention needed. MicLock maintains default input routing; recognition quality still depends on the microphone, environment, and voice software. No audio recording. Updates and feedback connect when requested. Anonymous usage statistics require explicit opt-in and are disabled by default.
+
+New installations start with automatic locking off. Enable it from the menu after checking the target and selecting System Default in the voice app. The source installer preserves existing lock and login preferences on upgrade. To show the actual guide without initializing state or changing input, run `build/MicLock.app/Contents/MacOS/MicLock --guide`.
