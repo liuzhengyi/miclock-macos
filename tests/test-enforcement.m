@@ -59,6 +59,15 @@ static void Assert(BOOL condition, NSString *message) {
     if (!condition) { fprintf(stderr, "FAIL: %s\n", message.UTF8String); exit(1); }
 }
 
+static NSMenuItem *FindMenuAction(NSMenu *menu, SEL action) {
+    for (NSMenuItem *item in menu.itemArray) {
+        if (item.action == action) return item;
+        NSMenuItem *nested = item.submenu != nil ? FindMenuAction(item.submenu, action) : nil;
+        if (nested != nil) return nested;
+    }
+    return nil;
+}
+
 @interface MLTestDelegate : MLAppDelegate
 @property(nonatomic, copy) void (^didPublish)(void);
 @end
@@ -142,25 +151,24 @@ int main(void) {
         delegate.statusMenu = [[NSMenu alloc] initWithTitle:@"test"];
         [delegate rebuildMenu];
         for (NSString *selectorName in @[@"showStatusWindow:", @"toggleLock:", @"toggleLaunchAtLogin:",
-            @"showQuickStart:", @"showReleaseNotes:", @"checkForUpdates:", @"reportIssue:",
+            @"showQuickStart:", @"showVoiceInputRecommendations:", @"showReleaseNotes:", @"checkForUpdates:", @"reportIssue:",
             @"uninstall:", @"stopLockingAndQuit:"]) {
             SEL selector = NSSelectorFromString(selectorName);
-            NSMenuItem *match = nil;
-            for (NSMenuItem *item in delegate.statusMenu.itemArray) if (item.action == selector) match = item;
+            NSMenuItem *match = FindMenuAction(delegate.statusMenu, selector);
             Assert(match != nil && match.target == delegate && [delegate respondsToSelector:selector],
                    [NSString stringWithFormat:@"production menu keeps the %@ action", selectorName]);
         }
-        NSUInteger microphoneSubmenus = 0;
-        for (NSMenuItem *item in delegate.statusMenu.itemArray) {
-            if (item.submenu == nil) continue;
-            microphoneSubmenus++;
-            Assert(item.submenu.numberOfItems == 2, @"both fake microphones remain configurable");
-            for (NSMenuItem *device in item.submenu.itemArray) {
-                Assert([device.representedObject isEqualToString:FakeTarget.uid] ||
-                       [device.representedObject isEqualToString:FakeOther.uid], @"menu action retains stable device UID");
+        NSMenuItem *targetDevice = FindMenuAction(delegate.statusMenu, @selector(setLockTarget:));
+        NSMenuItem *temporaryDevice = FindMenuAction(delegate.statusMenu, @selector(switchNow:));
+        for (NSMenuItem *device in @[targetDevice, temporaryDevice]) {
+            Assert(device.menu.numberOfItems == 2, @"both fake microphones remain configurable");
+            for (NSMenuItem *choice in device.menu.itemArray) {
+                Assert([choice.representedObject isEqualToString:FakeTarget.uid] ||
+                       [choice.representedObject isEqualToString:FakeOther.uid], @"menu action retains stable device UID");
             }
         }
-        Assert(microphoneSubmenus == 2, @"one-time switch and persistent target remain separate shortcuts");
+        Assert(targetDevice.menu != temporaryDevice.menu,
+               @"one-time switch and persistent target remain separate shortcuts");
         NSMenu *persistentMenu = delegate.statusMenu;
         [delegate rebuildMenu];
         Assert(delegate.statusMenu == persistentMenu, @"refresh keeps the same menu object");

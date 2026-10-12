@@ -139,7 +139,7 @@ static NSColor *MLBadgeColor(MLAudioDeviceKind kind) {
     NSMenuItem *app = [[NSMenuItem alloc] initWithTitle:@"MicLock" action:nil keyEquivalent:@""];
     app.submenu = [[NSMenu alloc] initWithTitle:@"MicLock"];
     [app.submenu addItem:[self actionItem:MLL(@"About MicLock") action:@selector(showAbout:)]];
-    NSMenuItem *settings = [self actionItem:MLL(@"Status and Settings…") action:@selector(showStatusWindow:)];
+    NSMenuItem *settings = [self actionItem:MLL(@"Status and Settings") action:@selector(showStatusWindow:)];
     settings.keyEquivalent = @",";
     [app.submenu addItem:settings];
     [app.submenu addItem:NSMenuItem.separatorItem];
@@ -660,6 +660,12 @@ static NSColor *MLBadgeColor(MLAudioDeviceKind kind) {
     return menu;
 }
 
+// Keep everyday operations one click away; maintenance and temporary routing
+// stay in More. Reading this status must never register or alter the login item.
+- (SMAppServiceStatus)launchAtLoginStatus {
+    return SMAppService.mainAppService.status;
+}
+
 - (void)rebuildMenu {
     [self.statusMenu removeAllItems];
     NSDictionary *configuration = MLLoadConfiguration();
@@ -676,71 +682,78 @@ static NSColor *MLBadgeColor(MLAudioDeviceKind kind) {
 
     [self.statusMenu addItem:[self disabledItem:[NSString stringWithFormat:MLL(@"Current input: %@"),
                                                  current.name != nil ? current.name : MLL(@"Unavailable")]]];
-    [self.statusMenu addItem:[self disabledItem:[NSString stringWithFormat:MLL(@"Lock target: %@"), targetName]]];
     [self.statusMenu addItem:[self disabledItem:[NSString stringWithFormat:MLL(@"Status: %@"),
                                                  MLHealthDisplayName(healthStatus)]]];
+    // Healthy current input already identifies the chosen microphone. Show the
+    // saved target separately only when it helps explain a disconnected device
+    // or other active lock problem; full details stay in Status and Settings.
+    BOOL matching = enabled && current != nil && [current.uid isEqualToString:targetUID] &&
+        ([healthStatus isEqualToString:@"healthy"] || [healthStatus isEqualToString:@"corrected"]);
+    if (enabled && !matching && targetUID.length > 0) {
+        [self.statusMenu addItem:[self disabledItem:[NSString stringWithFormat:MLL(@"Lock target: %@"), targetName]]];
+    }
     if ([health[@"monitoring"] isEqualToString:@"fallback"]) {
         [self.statusMenu addItem:[self disabledItem:MLL(@"Event monitoring unavailable; retrying every 5 seconds")]];
     }
     [self.statusMenu addItem:NSMenuItem.separatorItem];
 
-    NSMenuItem *settings = [self actionItem:MLL(@"Status and Settings…") action:@selector(showStatusWindow:)];
-    settings.keyEquivalent = @",";
-    [self.statusMenu addItem:settings];
-
+    NSMenuItem *target = [self actionItem:MLL(@"Configure Microphone") action:nil];
+    target.submenu = [self deviceMenuWithAction:@selector(setLockTarget:) selectedUID:targetUID devices:devices];
+    [self.statusMenu addItem:target];
     NSMenuItem *toggle = [self actionItem:(enabled ? MLL(@"Automatic lock: On") : MLL(@"Automatic lock: Off"))
                                     action:@selector(toggleLock:)];
     toggle.state = enabled ? NSControlStateValueOn : NSControlStateValueOff;
     toggle.image = [NSImage imageWithSystemSymbolName:(enabled ? @"mic.fill" : @"mic")
                              accessibilityDescription:toggle.title];
     [self.statusMenu addItem:toggle];
+    NSMenuItem *settings = [self actionItem:MLL(@"Status and Settings") action:@selector(showStatusWindow:)];
+    settings.keyEquivalent = @",";
+    [self.statusMenu addItem:settings];
+    [self.statusMenu addItem:NSMenuItem.separatorItem];
 
+    [self.statusMenu addItem:[self actionItem:MLL(@"Voice Input Recommendations")
+                                           action:@selector(showVoiceInputRecommendations:)]];
+    [self.statusMenu addItem:[self actionItem:MLL(@"Quick Start") action:@selector(showQuickStart:)]];
+    [self.statusMenu addItem:[self actionItem:MLL(@"Report an Issue") action:@selector(reportIssue:)]];
+
+    NSMenuItem *more = [self actionItem:MLL(@"More") action:nil];
+    more.submenu = [[NSMenu alloc] initWithTitle:MLL(@"More")];
+    // Explicit enablement (especially the update controller) must survive
+    // AppKit submenu validation just as it does for the top-level menu.
+    more.submenu.autoenablesItems = NO;
     NSMenuItem *switchNow = [self actionItem:(enabled
         ? MLL(@"Switch Input Now (Pauses Lock)") : MLL(@"Switch Input Now")) action:nil];
     switchNow.submenu = [self deviceMenuWithAction:@selector(switchNow:)
                                         selectedUID:current.uid != nil ? current.uid : @"" devices:devices];
-    [self.statusMenu addItem:switchNow];
-
-    NSMenuItem *target = [self actionItem:MLL(@"Lock Target") action:nil];
-    target.submenu = [self deviceMenuWithAction:@selector(setLockTarget:) selectedUID:targetUID devices:devices];
-    [self.statusMenu addItem:target];
-    [self.statusMenu addItem:NSMenuItem.separatorItem];
-
-    SMAppServiceStatus loginStatus = SMAppService.mainAppService.status;
+    [more.submenu addItem:switchNow];
+    SMAppServiceStatus loginStatus = [self launchAtLoginStatus];
     NSString *loginTitle = loginStatus == SMAppServiceStatusEnabled
         ? MLL(@"Launch at Login: On") : MLL(@"Launch at Login: Off");
     NSMenuItem *login = [self actionItem:loginTitle action:@selector(toggleLaunchAtLogin:)];
     login.state = loginStatus == SMAppServiceStatusEnabled ? NSControlStateValueOn : NSControlStateValueOff;
-    [self.statusMenu addItem:login];
+    [more.submenu addItem:login];
     if (loginStatus == SMAppServiceStatusRequiresApproval) {
-        [self.statusMenu addItem:[self actionItem:MLL(@"Approve in System Settings…")
-                                               action:@selector(openLoginItemSettings:)]];
+        [more.submenu addItem:[self actionItem:MLL(@"Approve in System Settings")
+                                              action:@selector(openLoginItemSettings:)]];
     }
-
-    [self.statusMenu addItem:NSMenuItem.separatorItem];
-    [self.statusMenu addItem:[self actionItem:MLL(@"Quick Start…") action:@selector(showQuickStart:)]];
-    [self.statusMenu addItem:[self actionItem:MLL(@"Copy Sharing Text") action:@selector(copySharingText:)]];
-    [self.statusMenu addItem:[self actionItem:MLL(@"Version History…") action:@selector(showReleaseNotes:)]];
-    NSMenuItem *update = [self actionItem:MLL(@"Check for Updates…") action:@selector(checkForUpdates:)];
+    [more.submenu addItem:NSMenuItem.separatorItem];
+    [more.submenu addItem:[self actionItem:MLL(@"Copy Sharing Text") action:@selector(copySharingText:)]];
+    [more.submenu addItem:[self actionItem:MLL(@"Version History") action:@selector(showReleaseNotes:)]];
+    NSMenuItem *update = [self actionItem:MLL(@"Check for Updates") action:@selector(checkForUpdates:)];
     update.enabled = self.updateController.canCheckForUpdates;
-    [self.statusMenu addItem:update];
-    [self.statusMenu addItem:[self actionItem:MLL(@"Copy Redacted Diagnostics")
-                                           action:@selector(copyDiagnostics:)]];
-    [self.statusMenu addItem:[self actionItem:MLL(@"Report an Issue…")
-                                           action:@selector(reportIssue:)]];
-    [self.statusMenu addItem:[self actionItem:MLL(@"About MicLock")
-                                           action:@selector(showAbout:)]];
-    [self.statusMenu addItem:[self actionItem:MLL(@"Uninstall MicLock…") action:@selector(uninstall:)]];
+    [more.submenu addItem:update];
+    [more.submenu addItem:NSMenuItem.separatorItem];
+    [more.submenu addItem:[self actionItem:MLL(@"Copy Redacted Diagnostics") action:@selector(copyDiagnostics:)]];
+    [more.submenu addItem:[self actionItem:MLL(@"About MicLock") action:@selector(showAbout:)]];
+    [more.submenu addItem:[self actionItem:MLL(@"Uninstall MicLock") action:@selector(uninstall:)]];
+    [self.statusMenu addItem:more];
     [self.statusMenu addItem:NSMenuItem.separatorItem];
-    NSMenuItem *quit = [self actionItem:MLL(@"Stop Locking and Quit")
-                                     action:@selector(stopLockingAndQuit:)];
+    NSMenuItem *quit = [self actionItem:MLL(@"Stop Locking and Quit") action:@selector(stopLockingAndQuit:)];
     quit.keyEquivalent = @"q";
     [self.statusMenu addItem:quit];
     [self updateStatusIcon];
     [self.statusWindowController updateWithCurrentInput:current configuration:configuration health:health
         healthDisplayName:MLHealthDisplayName(healthStatus) devices:devices];
-    BOOL matching = enabled && current != nil && [current.uid isEqualToString:targetUID] &&
-        ([healthStatus isEqualToString:@"healthy"] || [healthStatus isEqualToString:@"corrected"]);
     MLAnalyticsRecordLockActivity(matching);
 }
 
@@ -873,6 +886,12 @@ static NSColor *MLBadgeColor(MLAudioDeviceKind kind) {
     MLShowUsageGuide(YES);
 }
 
+- (void)showVoiceInputRecommendations:(NSMenuItem *)sender {
+    (void)sender;
+    [NSWorkspace.sharedWorkspace openURL:[NSURL URLWithString:
+        @"https://ecnkfnba0c1r.feishuapp.com/app/app_17ftjhzb3vs/voice-input.html"]];
+}
+
 - (void)showStatusWindow:(NSMenuItem *)sender {
     (void)sender;
     if (self.statusWindowController == nil) {
@@ -889,6 +908,7 @@ static NSColor *MLBadgeColor(MLAudioDeviceKind kind) {
             [weakSelf rebuildMenu];
         };
         self.statusWindowController.onQuickStart = ^{ [weakSelf showQuickStart:nil]; };
+        self.statusWindowController.onVoiceInputRecommendations = ^{ [weakSelf showVoiceInputRecommendations:nil]; };
         self.statusWindowController.onCopyDiagnostics = ^{ [weakSelf copyDiagnostics:nil]; };
         self.statusWindowController.onReportIssue = ^{ [weakSelf reportIssue:nil]; };
         self.statusWindowController.onCheckForUpdates = ^{ [weakSelf checkForUpdates:nil]; };

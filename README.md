@@ -1,5 +1,5 @@
 # MicLock for macOS
-> Current development version: 3.2.1, build 13. Developer ID/notarization and real upgrade/uninstall acceptance remain pending; website delivery records identify the actual published package.
+> Current development version: 3.2.2, build 14. Developer ID/notarization and real upgrade/uninstall acceptance remain pending; website delivery records identify the actual published package.
 
 <p align="center">
   <img src="docs/MicLock-icon.png" width="160" alt="MicLock icon">
@@ -9,6 +9,8 @@ MicLock keeps the macOS global default input on a selected microphone while
 AirPods or another headset can remain the output device.
 
 [简体中文](README.zh-CN.md)
+
+MicLock configures the microphone; a voice input method turns speech into text. Enable or install a voice input method first. **Voice Input Recommendations** opens the product guide to choosing one.
 
 ## Highlights
 
@@ -23,6 +25,8 @@ AirPods or another headset can remain the output device.
 - Repairs invalid saved menu-bar placement at startup and reuses one status item across activation; restores its image if the button is recreated.
 - No Homebrew dependency, audio capture, or root daemon. Usage statistics are off by default; users may explicitly enable a small set of anonymous events. Update checks and reports connect only when requested.
 
+- A concise menu keeps microphone configuration, locking, settings, voice input recommendations, quick start, and feedback directly available. Updates, login startup, diagnostics, and temporary switching are under More.
+
 ## Compatibility
 
 - Deployment target: macOS 13 or later. Broad OS/device acceptance remains pending.
@@ -34,9 +38,9 @@ AirPods or another headset can remain the output device.
 2. Open the DMG and drag `MicLock.app` to `Applications`.
 3. Open `MicLock` from Applications or Spotlight. Follow the initial guide to choose a target microphone and enable Automatic Lock.
 
-The local 3.2.1 build is currently ad-hoc signed. Apple notarization and formal Gatekeeper acceptance remain pending. The website must switch to a formal package only after Developer ID signing, notarization, and installation acceptance succeed; a successful build alone does not establish installation readiness.
+The local 3.2.2 build is currently ad-hoc signed. Apple notarization and formal Gatekeeper acceptance remain pending. The website must switch to a formal package only after Developer ID signing, notarization, and installation acceptance succeed; a successful build alone does not establish installation readiness.
 
-The [3.2.1 source tag](https://github.com/liuzhengyi/miclock-macos/tree/v3.2.1) matches this native version. The main branch may remain on an earlier version while the pull request is reviewed.
+The [3.2.2 source tag](https://github.com/liuzhengyi/miclock-macos/tree/v3.2.2) matches this native version. The main branch may remain on an earlier version while the pull request is reviewed.
 
 ## Install from source
 
@@ -85,9 +89,9 @@ shell does not already include it.
 | `!` | Target unavailable, repeated conflict, or error |
 
 Selecting **Switch Input Now** pauses automatic locking so the chosen device is
-not immediately reverted. Selecting **Lock Target** changes the persistent UID.
+not immediately reverted. Selecting **Configure Microphone** changes the persistent UID without changing whether automatic locking is enabled.
 
-Choose **Status and Settings…** from the menu to inspect the actual input, target, and health, or change the target and Automatic Lock directly. Closing this window leaves MicLock running in the menu bar. Reopening the app shows the status window again.
+Choose **Status and Settings** from the menu to inspect the actual input, target, and health, or change the target and Automatic Lock directly. Closing this window leaves MicLock running in the menu bar. Reopening the app shows the status window again.
 
 ## How it works
 
@@ -122,7 +126,7 @@ Builds are universal and warning-clean, with ad-hoc signing by default. The incl
 
 ## Uninstall
 
-For an installation in `/Applications` or your personal `~/Applications`, choose **Uninstall MicLock…** in the menu or settings window. Confirm to stop locking, unregister this app’s own login item, and move the app to the Trash. Saved settings and feedback drafts are retained unless you explicitly select their removal. Only known MicLock files are removed; unknown files are preserved. Developer builds and apps running from a DMG are refused by this uninstall action.
+For an installation in `/Applications` or your personal `~/Applications`, choose **Uninstall MicLock** under **More** or in the settings window. Confirm to stop locking, unregister this app’s own login item, and move the app to the Trash. Saved settings and feedback drafts are retained unless you explicitly select their removal. Only known MicLock files are removed; unknown files are preserved. Developer builds and apps running from a DMG are refused by this uninstall action.
 
 If you installed CLI commands from source, run the following in the matching source directory:
 
@@ -138,7 +142,7 @@ aliases only when their ownership can be verified.
 MicLock reads CoreAudio device metadata and changes the default input. It does
 not record audio. Updates and reports connect only when chosen; optional anonymous statistics are off by default and may be disabled at any time. Diagnostics redact device names and UIDs by default. Users can inspect or exclude the diagnostic attachment before submitting a report. See [SECURITY.md](SECURITY.md).
 
-**Report an Issue…** opens an in-app description field. A redacted system snapshot is attached by default and can be previewed or excluded before sending. Failed reports remain drafts for a user-initiated retry.
+**Report an Issue** opens an in-app description field. A redacted system snapshot is attached by default and can be previewed or excluded before sending. Failed reports remain drafts for a user-initiated retry.
 
 ## License
 
@@ -146,7 +150,7 @@ MicLock is released under the [MIT License](LICENSE).
 
 ## Quick start
 
-Keep your microphone when you connect headphones. Choose your built-in microphone under Lock Target, enable Automatic Lock, and select System Default in your voice app. The first launch includes a guide; reopen it anytime from the menu.
+Keep your microphone when you connect headphones. Choose your built-in microphone under Configure Microphone, enable Automatic Lock, and select System Default in your voice app if that setting is available. The first launch includes a guide; reopen it anytime from the menu.
 
 Badges: M built-in, B Bluetooth, E external, V virtual, O other, ! attention needed. MicLock maintains default input routing; recognition quality still depends on the microphone, environment, and voice software. No audio recording. Updates and feedback connect when requested. Anonymous usage statistics require explicit opt-in and are disabled by default.
 

@@ -27,4 +27,4 @@ Requirements:
 
 ## Bug reports
 
-Prefer **Report an Issue…** inside MicLock: describe the problem in one field. Redacted diagnostics are attached by default and may be previewed or excluded. There is no need to manually fill in your system version or hardware. If opening a GitHub issue instead, include a concise description and reproduction steps; diagnostic output is optional and should be reviewed before sharing.
+Prefer **Report an Issue** inside MicLock: describe the problem in one field. Redacted diagnostics are attached by default and may be previewed or excluded. There is no need to manually fill in your system version or hardware. If opening a GitHub issue instead, include a concise description and reproduction steps; diagnostic output is optional and should be reviewed before sharing.

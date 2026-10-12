@@ -7,6 +7,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy, nullable) void (^onToggleAutomaticLock)(void);
 @property(nonatomic, copy, nullable) void (^onSelectTarget)(NSString *uid);
 @property(nonatomic, copy, nullable) void (^onQuickStart)(void);
+@property(nonatomic, copy, nullable) void (^onVoiceInputRecommendations)(void);
 @property(nonatomic, copy, nullable) void (^onCopyDiagnostics)(void);
 @property(nonatomic, copy, nullable) void (^onReportIssue)(void);
 @property(nonatomic, copy, nullable) void (^onCheckForUpdates)(void);

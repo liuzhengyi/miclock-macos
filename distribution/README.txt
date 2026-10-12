@@ -1,4 +1,4 @@
-MicLock 3.2.1 (build 13)
+MicLock 3.2.2 (build 14)
 ========================
 
 MicLock keeps the macOS default input on the microphone you configure while
@@ -9,11 +9,14 @@ Install the website DMG
 ----------------------
 1. Open the DMG and drag MicLock.app to Applications.
 2. Open MicLock. Configure the built-in microphone and enable Automatic Lock.
-3. In your voice-input app, choose System Default as its microphone.
+3. Enable or install a voice input method. If it has a microphone setting,
+   choose System Default and try a sentence in a text field. The menu
+   Voice Input Recommendations opens the product guide to choosing one.
 
 The menu bar remains available when the settings window is closed. It provides
-microphone configuration, pause/resume, feedback, version history, update checks
-and uninstall. New installations start with Automatic Lock OFF.
+microphone configuration, pause/resume, settings, voice input recommendations,
+quick start and feedback. Version history, update checks, login startup,
+temporary switching, diagnostics and uninstall are under More. New installations start with Automatic Lock OFF.
 
 Feedback needs one problem description. You can preview or exclude its redacted
 system diagnostics. Failed reports remain local drafts for a manual retry.
@@ -32,4 +35,4 @@ macOS 13+ is the build target. The app includes arm64 and x86_64; real Intel,
 headset, clean-install, upgrade/restart and uninstall acceptance remain separate
 release checks. Current builds use ad-hoc signing and are not Apple-notarized.
 
-Source: https://github.com/liuzhengyi/miclock-macos/tree/v3.2.1
+Source: https://github.com/liuzhengyi/miclock-macos/tree/v3.2.2

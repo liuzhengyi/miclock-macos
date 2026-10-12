@@ -44,7 +44,7 @@ static NSString *MLSWL(NSString *key) {
 
 - (instancetype)init {
     NSWindow *window = [[NSWindow alloc]
-        initWithContentRect:NSMakeRect(0, 0, 610, 570)
+        initWithContentRect:NSMakeRect(0, 0, 610, 610)
                  styleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable
                    backing:NSBackingStoreBuffered defer:NO];
     self = [super initWithWindow:window];
@@ -83,7 +83,7 @@ static NSString *MLSWL(NSString *key) {
     self.automaticLockButton = [NSButton checkboxWithTitle:MLSWL(@"Automatic Lock")
         target:self action:@selector(automaticLockChanged:)];
     NSTextField *hint = [NSTextField wrappingLabelWithString:
-        MLSWL(@"Choose System Default in your voice app. Your headphones can continue playing audio.")];
+        MLSWL(@"MicLock configures your microphone. A voice input method turns speech into text. Install one first and choose System Default for its microphone.")];
     hint.font = [NSFont systemFontOfSize:12];
     hint.textColor = NSColor.secondaryLabelColor;
     NSTextField *menuHint = [NSTextField wrappingLabelWithString:MLSWL(@"MicLock stays in the top menu bar. Close this window to keep it running; open MicLock again to return here.")];
@@ -93,15 +93,16 @@ static NSString *MLSWL(NSString *key) {
     NSBox *separator = [[NSBox alloc] initWithFrame:NSZeroRect];
     separator.boxType = NSBoxSeparator;
     NSStackView *actions = [NSStackView stackViewWithViews:@[
-        [self actionButton:MLSWL(@"Quick Start…") action:@selector(openQuickStart:)],
-        [self actionButton:MLSWL(@"Report an Issue…") action:@selector(reportIssue:)],
+        [self actionButton:MLSWL(@"Quick Start") action:@selector(openQuickStart:)],
+        [self actionButton:MLSWL(@"Voice Input Recommendations") action:@selector(openVoiceInputRecommendations:)],
+        [self actionButton:MLSWL(@"Report an Issue") action:@selector(reportIssue:)],
     ]];
     actions.orientation = NSUserInterfaceLayoutOrientationHorizontal;
     actions.spacing = 10;
     NSStackView *maintenance = [NSStackView stackViewWithViews:@[
-        [self actionButton:MLSWL(@"Version History…") action:@selector(versionHistory:)],
-        [self actionButton:MLSWL(@"Check for Updates…") action:@selector(checkForUpdates:)],
-        [self actionButton:MLSWL(@"Uninstall MicLock…") action:@selector(uninstall:)],
+        [self actionButton:MLSWL(@"Version History") action:@selector(versionHistory:)],
+        [self actionButton:MLSWL(@"Check for Updates") action:@selector(checkForUpdates:)],
+        [self actionButton:MLSWL(@"Uninstall MicLock") action:@selector(uninstall:)],
     ]];
     maintenance.orientation = NSUserInterfaceLayoutOrientationHorizontal;
     maintenance.spacing = 10;
@@ -195,6 +196,7 @@ static NSString *MLSWL(NSString *key) {
 }
 
 - (void)openQuickStart:(NSButton *)sender { (void)sender; if (self.onQuickStart != nil) self.onQuickStart(); }
+- (void)openVoiceInputRecommendations:(NSButton *)sender { (void)sender; if (self.onVoiceInputRecommendations != nil) self.onVoiceInputRecommendations(); }
 - (void)copyDiagnostics:(NSButton *)sender { (void)sender; if (self.onCopyDiagnostics != nil) self.onCopyDiagnostics(); }
 - (void)reportIssue:(NSButton *)sender { (void)sender; if (self.onReportIssue != nil) self.onReportIssue(); }
 - (void)versionHistory:(NSButton *)sender { (void)sender; if (self.onVersionHistory != nil) self.onVersionHistory(); }

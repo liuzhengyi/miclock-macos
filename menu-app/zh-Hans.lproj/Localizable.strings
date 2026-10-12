@@ -24,10 +24,10 @@
 "No input devices available" = "没有可用的输入设备";
 "Launch at Login: On" = "登录时启动：已开启";
 "Launch at Login: Off" = "登录时启动：已关闭";
-"Approve in System Settings…" = "前往系统设置批准…";
+"Approve in System Settings" = "前往系统设置批准";
 "Copy Redacted Diagnostics" = "复制脱敏诊断信息";
 "Copy Diagnostics" = "复制诊断信息";
-"Report an Issue…" = "报告问题…";
+"Report an Issue" = "反馈问题";
 "About MicLock" = "关于 MicLock";
 "Quit and Restore macOS Behavior" = "退出并恢复 macOS 默认行为";
 "OK" = "好";
@@ -53,7 +53,7 @@
 "  show-menu            Open the menu bar menu, starting MicLock if needed" = "  show-menu            打开菜单栏菜单（必要时启动 MicLock）";
 "MicLock menu request timed out. Open the app and try again." = "MicLock 菜单打开请求超时，请打开应用后重试。";
 "MicLock accepted the menu-opening request." = "MicLock 已接收打开菜单的请求。";
-"Status and Settings…" = "状态与设置…";
+"Status and Settings" = "状态与设置";
 "MicLock Status and Settings" = "MicLock · 状态与设置";
 "Voice Input Companion" = "语音输入伴侣";
 "Current microphone" = "当前麦克风";
@@ -78,13 +78,13 @@
 "The configured input was restored." = "已恢复配置的输入设备。";
 "Choose a lock target by number: " = "输入编号选择锁定目标：";
 "Selection is out of range." = "设备编号超出范围。";
-"Quick Start…" = "使用入门…";
+"Quick Start" = "使用入门";
 "Copy Sharing Text" = "复制分享文案";
-"Downloads and Release Notes…" = "下载与更新说明…";
+"Downloads and Release Notes" = "下载与更新说明";
 "Headphones for listening. Mac for speaking." = "耳机负责听，电脑负责说。";
 "Got It" = "知道了";
 "Open Sound Settings" = "打开声音设置";
-"Quick Start Details" = "首次安装时，自动锁定默认关闭。\n\n1. 建议配置电脑自带麦克风，开启“自动锁定麦克风”。\n\n2. 语音软件中的麦克风选“系统默认”，耳机可继续作为输出设备。\n\n3. M 表示内建，B 蓝牙，E 外接，V 虚拟，O 其他；! 表示需要处理。菜单栏的麦克风图标可快捷配置、暂停和打开设置。关闭设置窗口后应用仍在运行；再次打开 MicLock 即可返回设置。\n\n目标断开时会等待；可随时暂停或退出。MicLock 只保持系统默认输入，不录音，也不改善降噪或识别算法。";
+"Quick Start Details" = "MicLock 帮你配置麦克风，语音输入法负责把声音转成文字。还没安装语音输入法？先打开“语音输入法推荐”。\n\n1. 在“配置麦克风”中选电脑自带麦克风，开启“自动锁定”。首次安装时，锁定默认关闭。\n\n2. 打开语音输入法；如有麦克风设置，请选“系统默认”。在文字输入框中试说一句。耳机可以继续播放声音。\n\n3. 顶部麦克风图标可快捷配置和暂停。关闭“状态与设置”窗口后继续运行；更新、登录启动和临时切换输入都在“更多”中。\n\n目标断开时会等待，可随时暂停或退出。MicLock 不录音，也不改变语音识别算法。";
 "Sharing Text" = "戴上耳机后，语音输入变差？先检查麦克风是否被切换到了耳机。MicLock 可以把 macOS 系统默认输入固定在你选择的电脑或外接麦克风上。语音软件中的麦克风请选“系统默认”。不录音。检查更新和反馈仅在你主动操作时联网。下载与说明：https://ecnkfnba0c1r.feishuapp.com/app/app_17ftjhzb3vs";
 
 "Keep your microphone when you connect headphones." = "戴上耳机后，语音输入变差？";
@@ -95,10 +95,9 @@
 "MicLock is not running" = "MicLock 未运行";
 
 // Application maintenance
-"Version History…" = "版本更新记录…";
 "Version History" = "版本更新记录";
-"Check for Updates…" = "检查更新…";
-"Uninstall MicLock…" = "卸载 MicLock…";
+"Check for Updates" = "检查更新";
+"Uninstall MicLock" = "卸载 MicLock";
 "MicLock stays in the top menu bar. Close this window to keep it running; open MicLock again to return here." = "MicLock 常驻屏幕顶部菜单栏。关闭此窗口后继续运行；再次打开应用可返回这里。";
 "The update download address is not trusted." = "更新下载地址无法验证，请稍后重试。";
 "Release notes are unavailable." = "暂时无法读取版本记录。";
@@ -120,7 +119,6 @@
 "The diagnostic report is invalid. Please try without diagnostics." = "诊断信息格式异常，可以取消附带诊断后重试。";
 "Could not send the report. Your description is saved; try again later." = "发送失败，问题描述已保存，请稍后重试。";
 "The server did not confirm receipt. Your description is saved; try again later." = "服务尚未确认收件，问题描述已保存，可以稍后重试。";
-"Report an Issue" = "反馈问题";
 "Describe what happened. You can use your voice input method here." = "说说遇到了什么问题。你可以直接用语音输入法填写。";
 "Problem description" = "问题描述";
 "Include system and MicLock diagnostics" = "自动附带系统与 MicLock 诊断信息";
@@ -149,3 +147,8 @@
 "Select All" = "全选";
 "Close Window" = "关闭窗口";
 "Minimize" = "最小化";
+
+"Configure Microphone" = "配置麦克风";
+"More" = "更多";
+"Voice Input Recommendations" = "语音输入法推荐";
+"MicLock configures your microphone. A voice input method turns speech into text. Install one first and choose System Default for its microphone." = "MicLock 帮你配置麦克风，语音输入法负责把声音转成文字。请先安装语音输入法，并将其中的麦克风选为“系统默认”。";
