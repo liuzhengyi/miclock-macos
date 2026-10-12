@@ -34,7 +34,7 @@
     _length = length;
     if (length != 0) {
         self.wasSizedBeforeNamed = self.wasSizedBeforeNamed || self.autosaveName.length == 0;
-        self.wasSizedBeforeImage = self.wasSizedBeforeImage || self.button.image == nil;
+        self.wasSizedBeforeImage = self.wasSizedBeforeImage || !self.button.image.isTemplate;
     }
 }
 @end
@@ -59,6 +59,7 @@
     // NSButton provides the real AppKit image, view, accessibility, and layout
     // behavior used by the coordinator, without attaching to NSStatusBar.
     item.button = [[NSButton alloc] initWithFrame:NSMakeRect(0, 0, 24, 24)];
+    item.button.image = nil;
     return (NSStatusItem *)(id)item;
 }
 @end
