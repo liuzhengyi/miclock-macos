@@ -1,0 +1,40 @@
+name: Native MicLock regression
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regression:
+    runs-on: macos-14
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
+      - name: Verify the pinned official Sparkle dependency
+        run: ./scripts/fetch-sparkle.sh
+      - name: Run isolated models and universal app verification
+        env:
+          SIGNING_IDENTITY: '-'
+        run: |
+          mkdir -p test-results
+          set -o pipefail
+          ./tests/run.sh 2>&1 | tee test-results/native-regression.log
+      - name: Preserve regression evidence
+        if: always()
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+        with:
+          name: native-${{ github.run_id }}-${{ github.run_attempt }}
+          path: test-results/
+          if-no-files-found: warn
+          include-hidden-files: false
+          retention-days: 14

@@ -6,15 +6,13 @@ Thank you for helping improve MicLock.
 
 Requirements:
 
-- Apple Silicon Mac
-- macOS Tahoe 26 or later
+- An Apple Silicon or Intel Mac
+- macOS 13 or later
 - Xcode Command Line Tools
-- Homebrew and <code>switchaudio-osx</code>
 
 ~~~zsh
-brew install switchaudio-osx
-./build-menu-app.sh
-./build-dmg.sh
+./scripts/fetch-sparkle.sh
+./tests/run.sh
 ~~~
 
 ## Pull requests
@@ -22,10 +20,11 @@ brew install switchaudio-osx
 - Keep input switching independent from output-device selection.
 - Do not add audio capture, telemetry, or network access without discussion.
 - Preserve command-line compatibility when changing the menu app.
-- Run <code>zsh -n</code> on scripts and <code>plutil -lint</code> on plists.
+- Keep CoreAudio work off polling timers and external subprocesses.
+- Store and compare devices by UID, never by localized display name alone.
+- Run <code>./tests/run.sh</code>; CI treats compiler warnings as errors.
 - Explain user-visible behavior and verification steps.
 
 ## Bug reports
 
-Include the macOS version, Mac model, input-device list, relevant MicLock logs,
-and reproduction steps. Remove personal device names before posting if needed.
+Prefer **Report an Issue** inside MicLock: describe the problem in one field. Redacted diagnostics are attached by default and may be previewed or excluded. There is no need to manually fill in your system version or hardware. If opening a GitHub issue instead, include a concise description and reproduction steps; diagnostic output is optional and should be reviewed before sharing.

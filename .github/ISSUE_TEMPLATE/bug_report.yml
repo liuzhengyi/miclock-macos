@@ -1,42 +1,25 @@
 name: Bug report
-description: Report a reproducible MicLock problem
+description: Describe a MicLock problem
 title: "[Bug]: "
 labels:
   - bug
 body:
   - type: markdown
     attributes:
-      value: Thanks for helping improve MicLock. Remove personal device names from logs if needed.
-  - type: input
-    id: macos
+      value: Prefer “Report an Issue…” inside MicLock. It automatically attaches diagnostics that you can preview or exclude. GitHub issues are public; review anything you share here.
+  - type: textarea
+    id: description
     attributes:
-      label: macOS version
-      placeholder: macOS 26.x
-    validations:
-      required: true
-  - type: input
-    id: hardware
-    attributes:
-      label: Mac model
-      placeholder: MacBook Air (Apple Silicon)
+      label: What went wrong?
+      description: A short description is enough. If useful, mention what you were doing and what you expected.
+      placeholder: Describe the problem in your own words.
     validations:
       required: true
   - type: textarea
-    id: steps
+    id: diagnostics
     attributes:
-      label: Reproduction steps
-      placeholder: Describe what you did and what happened.
+      label: Redacted diagnostics (optional)
+      description: Use “Copy Redacted Diagnostics” in MicLock, review the output, and paste it here only if you want to share it. Do not attach recordings, personal text, account details, credentials, or raw device listings.
+      render: text
     validations:
-      required: true
-  - type: textarea
-    id: devices
-    attributes:
-      label: Input devices
-      description: Output of mic-list, with personal device names redacted if desired.
-      render: shell
-  - type: textarea
-    id: logs
-    attributes:
-      label: Relevant logs
-      description: Output of miclock logs, with sensitive details redacted.
-      render: shell
+      required: false

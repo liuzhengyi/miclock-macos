@@ -4,33 +4,12 @@ set -euo pipefail
 
 readonly SOURCE_DIR="${0:A:h}"
 readonly APP_SOURCE="$SOURCE_DIR/menu-app"
+readonly SPARKLE_DIR="$SOURCE_DIR/vendor/Sparkle-2.10.0"
 readonly OUTPUT_PATH="${1:-$SOURCE_DIR/build/MicLock.app}"
 
-switch_source="${SWITCH_AUDIO_SOURCE_BUNDLE_SOURCE:-}"
-if [[ -z "$switch_source" ]]; then
-  for candidate in \
-    /opt/homebrew/opt/switchaudio-osx/SwitchAudioSource \
-    /opt/homebrew/Cellar/switchaudio-osx/1.2.2/SwitchAudioSource; do
-    if [[ -x "$candidate" ]]; then
-      switch_source="$candidate"
-      break
-    fi
-  done
-fi
-[[ -x "$switch_source" ]] || {
-  /bin/echo "ERROR: the real SwitchAudioSource Mach-O binary was not found" >&2
-  exit 1
-}
-if /usr/bin/file "$switch_source" | /usr/bin/grep -q "shell script"; then
-  /bin/echo "ERROR: refusing to bundle the Homebrew wrapper script: $switch_source" >&2
-  exit 1
-fi
-
-license_source="${SWITCH_AUDIO_SOURCE_LICENSE_SOURCE:-${switch_source:h}/license.txt}"
-[[ -r "$license_source" ]] || {
-  /bin/echo "ERROR: SwitchAudioSource MIT license was not found" >&2
-  exit 1
-}
+[[ "${OUTPUT_PATH:t}" == "MicLock.app" && ! -L "$OUTPUT_PATH" ]]
+[[ "${OUTPUT_PATH:A:h}" != "/Applications" && "${OUTPUT_PATH:A:h}" != "$HOME/Applications" ]]
+[[ -d "$SPARKLE_DIR/Sparkle.framework" ]]
 
 build_dir="$(/usr/bin/mktemp -d "${TMPDIR:-/tmp}/mic-lock-app.XXXXXX")"
 trap '/bin/rm -rf "$build_dir"' EXIT
@@ -40,25 +19,36 @@ icon_sizes="$build_dir/icon-sizes"
 
 /bin/mkdir -p \
   "$stage_app/Contents/MacOS" \
-  "$stage_app/Contents/Resources/bin" \
-  "$stage_app/Contents/Resources/ThirdPartyNotices" \
-  "$stage_app/Contents/Resources/InstallerSupport" \
+  "$stage_app/Contents/Resources" \
   "$icon_sizes" \
   "${OUTPUT_PATH:h}"
 
 /usr/bin/xcrun clang \
   -fobjc-arc \
+  -fblocks \
   -O2 \
-  -mmacosx-version-min=26.0 \
+  -Wall -Wextra -Wpedantic -Werror \
+  -arch arm64 -arch x86_64 \
+  -mmacosx-version-min=13.0 \
   -framework AppKit \
   -framework Foundation \
-  "$APP_SOURCE/main.m" \
-  -o "$stage_app/Contents/MacOS/MicLockMenu"
+  -framework CoreText \
+  -framework CoreAudio \
+  -framework AudioToolbox \
+  -framework ServiceManagement \
+  -F "$SPARKLE_DIR" -framework Sparkle \
+  -Wl,-rpath,@executable_path/../Frameworks \
+  "$APP_SOURCE/main.m" "$APP_SOURCE/MLAudio.m" "$APP_SOURCE/MLState.m" \
+  "$APP_SOURCE/MLCorrectionPolicy.m" "$APP_SOURCE/MLGuide.m" \
+  "$APP_SOURCE/MLStatusWindow.m" "$APP_SOURCE/MLUpdate.m" \
+  "$APP_SOURCE/MLLifecycle.m" "$APP_SOURCE/MLFeedback.m" "$APP_SOURCE/MLAnalytics.m" \
+  -o "$stage_app/Contents/MacOS/MicLock"
 
 /usr/bin/xcrun clang \
   -fobjc-arc \
   -O2 \
-  -mmacosx-version-min=26.0 \
+  -arch arm64 -arch x86_64 \
+  -mmacosx-version-min=13.0 \
   -framework AppKit \
   -framework Foundation \
   "$APP_SOURCE/generate_app_icon.m" \
@@ -83,24 +73,33 @@ done
 /usr/bin/install -m 644 "$APP_SOURCE/Info.plist" "$stage_app/Contents/Info.plist"
 /usr/bin/install -m 644 "$SOURCE_DIR/LICENSE" \
   "$stage_app/Contents/Resources/MicLock-LICENSE.txt"
-/usr/bin/install -m 755 "$switch_source" "$stage_app/Contents/Resources/bin/SwitchAudioSource"
-/usr/bin/install -m 644 "$license_source" \
-  "$stage_app/Contents/Resources/ThirdPartyNotices/SwitchAudioSource-LICENSE.txt"
-/usr/bin/install -m 755 "$SOURCE_DIR/mic-input-lock.sh" \
-  "$stage_app/Contents/Resources/InstallerSupport/mic-input-lock.sh"
-/usr/bin/install -m 755 "$SOURCE_DIR/miclock" \
-  "$stage_app/Contents/Resources/InstallerSupport/miclock"
-/usr/bin/install -m 644 "$SOURCE_DIR/com.user.mic-input-lock.plist.template" \
-  "$stage_app/Contents/Resources/InstallerSupport/com.user.mic-input-lock.plist.template"
-/usr/bin/install -m 644 "$APP_SOURCE/com.user.mic-input-lock-menu.plist.template" \
-  "$stage_app/Contents/Resources/InstallerSupport/com.user.mic-input-lock-menu.plist.template"
+/usr/bin/install -m 644 "$APP_SOURCE/ReleaseNotes.txt" \
+  "$stage_app/Contents/Resources/ReleaseNotes.txt"
+/usr/bin/install -m 644 "$SPARKLE_DIR/LICENSE" \
+  "$stage_app/Contents/Resources/Sparkle-LICENSE.txt"
+/bin/mkdir -p "$stage_app/Contents/Frameworks"
+/usr/bin/ditto --norsrc --noextattr "$SPARKLE_DIR/Sparkle.framework" \
+  "$stage_app/Contents/Frameworks/Sparkle.framework"
+for locale in en zh-Hans; do
+  /bin/mkdir -p "$stage_app/Contents/Resources/$locale.lproj"
+  /usr/bin/install -m 644 "$APP_SOURCE/$locale.lproj/Localizable.strings" \
+    "$stage_app/Contents/Resources/$locale.lproj/Localizable.strings"
+done
 
-# Sign inner code first, then seal the outer app. With no Developer ID available,
-# this produces an ad-hoc signed testing build; SIGNING_IDENTITY can override it.
+# A local build remains ad-hoc signed. Supplying a Developer ID identity enables
+# hardened-runtime signing without changing the build recipe.
 identity="${SIGNING_IDENTITY:--}"
-/usr/bin/codesign --force --sign "$identity" \
-  "$stage_app/Contents/Resources/bin/SwitchAudioSource" >/dev/null
-/usr/bin/codesign --force --sign "$identity" "$stage_app" >/dev/null
+if [[ "$identity" == "-" ]]; then
+  /usr/bin/codesign --force --sign - "$stage_app" >/dev/null
+else
+  framework="$stage_app/Contents/Frameworks/Sparkle.framework/Versions/B"
+  for helper in "$framework"/XPCServices/*.xpc "$framework/Updater.app" "$framework/Autoupdate"; do
+    [[ ! -e "$helper" ]] || /usr/bin/codesign --force --options runtime --timestamp --sign "$identity" "$helper" >/dev/null
+  done
+  /usr/bin/codesign --force --options runtime --timestamp --sign "$identity" \
+    "$stage_app/Contents/Frameworks/Sparkle.framework" >/dev/null
+  /usr/bin/codesign --force --options runtime --timestamp --sign "$identity" "$stage_app" >/dev/null
+fi
 /usr/bin/codesign --verify --deep --strict "$stage_app"
 
 /bin/rm -rf "$OUTPUT_PATH"
